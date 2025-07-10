@@ -1,9 +1,9 @@
 // Weather image configuration
 const weatherImages = {
     "clear-day": {
-        summer: "https://matthewdelong.github.io/weather-images/clear-sky/summer.jpg",
-        winter: "https://matthewdelong.github.io/weather-images/clear-sky/winter.jpg",
-        default: "https://matthewdelong.github.io/weather-images/clear-sky/default.jpg"
+        summer: "https://matthewdelong.github.io/weather-images/clear-day/summer.jpg",
+        winter: "https://matthewdelong.github.io/weather-images/clear-day/winter.jpg",
+        default: "https://matthewdelong.github.io/weather-images/clear-day/default.jpg"
     },
     "clear-night": {
         summer: "https://matthewdelong.github.io/weather-images/clear-night/summer.jpg",
