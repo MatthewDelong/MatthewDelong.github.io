@@ -1,3 +1,5 @@
+// install and using this script 1) npm install sharp axios mkdirp 2) node process-images.js 
+
 const fs = require('fs');
 const path = require('path');
 const sharp = require('sharp');
