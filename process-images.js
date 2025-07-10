@@ -4,32 +4,78 @@ const sharp = require('sharp');
 const axios = require('axios');
 const { mkdirp } = require('mkdirp');
 
-// Configuration - EDIT THESE VALUES
+// Configuration
 const IMAGE_SPECS = {
-  width: 1600,     // Target width in pixels
-  quality: 80,     // JPEG quality (1-100)
-  fit: 'cover'     // Crop mode ('cover' = Unsplash-style crop)
+  width: 1600,
+  quality: 80,
+  fit: 'cover'
 };
 
+// YOUR GITHUB PAGES IMAGE URLs
 const WEATHER_IMAGES = {
   'clear-day': {
-    summer: 'https://images.unsplash.com/photo-1601134467661-3d775b999c8b',
-    winter: 'https://images.unsplash.com/photo-1483728642387-6c3bdd6c93e5',
-    default: 'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07'
+    summer: 'https://matthewdelong.github.io/weather-images/clear-day/summer.jpg',
+    winter: 'https://matthewdelong.github.io/weather-images/clear-day/winter.jpg',
+    default: 'https://matthewdelong.github.io/weather-images/clear-day/default.jpg'
   },
-  // Add other weather conditions here following the same pattern
   'clear-night': {
-    summer: 'https://images.unsplash.com/photo-1534796636912-3b95b3ab5986',
-    default: 'https://images.unsplash.com/photo-1534796636912-3b95b3ab5986'
-  }
+    summer: 'https://matthewdelong.github.io/weather-images/clear-night/summer.jpg',
+    winter: 'https://matthewdelong.github.io/weather-images/clear-night/winter.jpg',
+    default: 'https://matthewdelong.github.io/weather-images/clear-night/default.jpg'
+  },
+  'partly-cloudy-day': {
+    morning: 'https://matthewdelong.github.io/weather-images/partly-cloudy-day/morning.jpg',
+    afternoon: 'https://matthewdelong.github.io/weather-images/partly-cloudy-day/afternoon.jpg',
+    evening: 'https://matthewdelong.github.io/weather-images/partly-cloudy-day/evening.jpg',
+    default: 'https://matthewdelong.github.io/weather-images/partly-cloudy-day/default.jpg'
+  },
+  'partly-cloudy-night': {
+    early: 'https://matthewdelong.github.io/weather-images/partly-cloudy-night/early.jpg',
+    late: 'https://matthewdelong.github.io/weather-images/partly-cloudy-night/late.jpg',
+    default: 'https://matthewdelong.github.io/weather-images/partly-cloudy-night/default.jpg'
+  },
+  'rain': {
+    light: 'https://matthewdelong.github.io/weather-images/rain/light.jpg',
+    heavy: 'https://matthewdelong.github.io/weather-images/rain/heavy.jpg',
+    default: 'https://matthewdelong.github.io/weather-images/rain/default.jpg'
+  },
+  'snow': {
+    light: 'https://matthewdelong.github.io/weather-images/snow/light.jpg',
+    heavy: 'https://matthewdelong.github.io/weather-images/snow/heavy.jpg',
+    default: 'https://matthewdelong.github.io/weather-images/snow/default.jpg'
+  },
+  'thunderstorm': {
+    light: 'https://matthewdelong.github.io/weather-images/thunderstorm/light.jpg',
+    heavy: 'https://matthewdelong.github.io/weather-images/thunderstorm/heavy.jpg',
+    default: 'https://matthewdelong.github.io/weather-images/thunderstorm/default.jpg'
+  },
+  'cloudy': 'https://matthewdelong.github.io/weather-images/cloudy.jpg',
+  'mist': 'https://matthewdelong.github.io/weather-images/mist.jpg',
+  'sleet': 'https://matthewdelong.github.io/weather-images/sleet.jpg',
+  'wind': 'https://matthewdelong.github.io/weather-images/wind.jpg',
+  'hail': 'https://matthewdelong.github.io/weather-images/hail.jpg',
+  'tornado': 'https://matthewdelong.github.io/weather-images/tornado.jpg',
+  'default': 'https://matthewdelong.github.io/weather-images/default.jpg'
 };
 
-async function processImage(url, outputPath) {
+async function downloadImage(url, outputPath) {
   try {
-    console.log(`⬇️ Downloading ${url}`);
-    const response = await axios.get(url, { responseType: 'arraybuffer' });
-    
-    await sharp(response.data)
+    const response = await axios.get(url, { 
+      responseType: 'arraybuffer',
+      timeout: 15000
+    });
+    await fs.promises.writeFile(outputPath, response.data);
+    console.log(`✅ Downloaded ${path.basename(outputPath)}`);
+    return true;
+  } catch (err) {
+    console.error(`❌ Failed to download ${url}: ${err.message}`);
+    return false;
+  }
+}
+
+async function processExistingImage(inputPath, outputPath) {
+  try {
+    await sharp(inputPath)
       .resize({ 
         width: IMAGE_SPECS.width,
         fit: IMAGE_SPECS.fit 
@@ -39,24 +85,48 @@ async function processImage(url, outputPath) {
         mozjpeg: true 
       })
       .toFile(outputPath);
-    
-    console.log(`✅ Saved to ${outputPath}`);
+    console.log(`✨ Processed ${path.basename(outputPath)}`);
   } catch (err) {
-    console.error(`❌ Failed ${url}: ${err.message}`);
+    console.error(`❌ Failed to process ${inputPath}: ${err.message}`);
   }
 }
 
 async function main() {
-  console.log('Starting image processing...');
+  console.log('Starting image optimization...');
+  
+  // Create optimized versions of all images
   for (const [weatherType, variants] of Object.entries(WEATHER_IMAGES)) {
-    for (const [variant, url] of Object.entries(variants)) {
-      const dir = path.join('weather-images', weatherType);
-      await mkdirp(dir);
-      const outputPath = path.join(dir, `${variant}.jpg`);
-      await processImage(url, outputPath);
+    if (typeof variants === 'string') {
+      // Single image (like cloudy.jpg)
+      const inputPath = path.join('original-images', `${weatherType}.jpg`);
+      const outputPath = path.join('weather-images', `${weatherType}.jpg`);
+      
+      await mkdirp(path.dirname(outputPath));
+      if (fs.existsSync(inputPath)) {
+        await processExistingImage(inputPath, outputPath);
+      } else {
+        console.log(`ℹ️ ${inputPath} not found - using direct URL`);
+        await downloadImage(variants, outputPath);
+      }
+    } else {
+      // Variant images
+      for (const [variant, url] of Object.entries(variants)) {
+        const inputPath = path.join('original-images', weatherType, `${variant}.jpg`);
+        const outputPath = path.join('weather-images', weatherType, `${variant}.jpg`);
+        
+        await mkdirp(path.dirname(outputPath));
+        if (fs.existsSync(inputPath)) {
+          await processExistingImage(inputPath, outputPath);
+        } else {
+          console.log(`ℹ️ ${inputPath} not found - using direct URL`);
+          await downloadImage(url, outputPath);
+        }
+      }
     }
   }
-  console.log('All done! Upload the "weather-images" folder to GitHub.');
+  
+  console.log('🎉 Optimization complete!');
+  console.log('Upload the "weather-images" folder to GitHub.');
 }
 
 main();
