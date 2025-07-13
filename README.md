@@ -6,7 +6,7 @@ Weather images for main webitsite dynamic backgrounds
 -- node process-images.js
 
 
-once cloned from git, delete weather-images and keep original-images before running node process-images.js. A new folder will be created called weather-images.
+Once cloned from git, delete weather-images and keep original-images. Change to your images see tree below before running node process-images.js. A new folder will be created called weather-images.
 
 original-images/
 [ ├── clear-day/
