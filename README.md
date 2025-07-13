@@ -1,7 +1,7 @@
 # MatthewDelong.github.io/weather-images
 Weather images for main webitsite dynamic backgrounds
 
-// install and using this script 
+// install and using this script on VS Code
 -- npm install sharp axios mkdirp
 -- node process-images.js
 
