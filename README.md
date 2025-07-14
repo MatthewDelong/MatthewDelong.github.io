@@ -46,7 +46,7 @@ Once cloned from git, delete weather-images and keep original-images. Change to 
 - tornado.jpg
 - default.jpg
   
-**weather-icons/**
+**weather-icons/animated and static**
   - cloudy-day-1.svg
   - cloudy-day-2.svg
   - cloudy-day-3.svg
