@@ -1,5 +1,7 @@
-# MatthewDelong.github.io/weather-images
+# MatthewDelong.github.io/weather-images or weather-icons
 Weather images for main webitsite dynamic backgrounds
+
+**Amcharts site**:- [Here](https://www.amcharts.com/free-animated-svg-weather-icons/)
 
 // install and using this script on VS Code
 -- npm install sharp axios mkdirp
